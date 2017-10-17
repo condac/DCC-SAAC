@@ -8,6 +8,7 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 #define DCC_POWER   11
 #define DCC_DIR     13
 
+bool trackPower = false;
 
 Train dummy(1, "RC1");
 
@@ -42,6 +43,15 @@ void loop() {
   dcc_packMsg();
   drawMenu();
   currentWatch();
+  checkTrackPower();
+}
+void checkTrackPower() {
+  if (trackPower) {
+    digitalWrite(DCC_POWER, HIGH);
+  }
+  else {
+    digitalWrite(DCC_POWER, LOW);
+  }
 }
 
 void currentWatch() {
@@ -51,6 +61,7 @@ void currentWatch() {
   if (currentDraw > 660) {
     Serial.println("Over current protection triggered!");
     digitalWrite(DCC_POWER, LOW);
+    trackPower = false;
   }
 }
 

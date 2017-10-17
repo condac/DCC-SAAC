@@ -9,6 +9,7 @@ int prevMenu = 1;
 int selectedTrain = 0;
 
 
+
 void initLCD() {
 
   lcd.begin(16, 2);              // start the library
@@ -46,6 +47,13 @@ void menuMain() {
   
   lcd.setCursor(0,0);
   lcd.print("Main Menu");
+  lcd.setCursor(11,0);
+  if (trackPower) {
+    lcd.print("P:On ");
+  } else {
+    lcd.print("P:Off");
+  }
+  
   lcd.setCursor(0,1);
   lcd.print("SelTrain");
   lcd.setCursor(8,1);
@@ -65,6 +73,11 @@ void menuMain() {
     btnPressed = 0;
     selectedTrain--;
   }
+  if ( btnPressed == btnUP) {
+    trackPower = !trackPower;
+    btnPressed = 0;
+  }
+  
   if (selectedTrain >= MAX_TRAINS) {
     selectedTrain = 0;
   }

@@ -15,8 +15,10 @@ class Train {
     void setLight(bool inLight);
     bool getLight();
     void toggleFunction(int funcNr);
-    char* Train::getName();
-
+    char* getName();
+    byte getID();
+    byte getSpeedMsg();
+    bool isConfigured();
 };
 
 Train::Train(int idIn, String nameIn) {
@@ -33,6 +35,8 @@ Train::Train(int idIn, String nameIn) {
   
   this->speed = 0;
 }
+
+
 
 int Train::getSpeed() {
   return this->speed;
@@ -64,5 +68,37 @@ void Train::toggleFunction(int funcNr) {
 
 char* Train::getName() {
   return this->name;
+}
+
+byte Train::getSpeedMsg() {
+  byte  data;
+  byte locoSpeed;
+  bool dir;
+  if (this->speed >0) {
+    dir = true;
+  } else {
+    dir = false;
+  }
+  locoSpeed = abs(this->speed);
+  if (locoSpeed == 1)  {  // this would result in emergency stop
+    locoSpeed = 0;
+  }
+   
+  // direction info first
+  if (dir)  {  // forward
+    data = 0b10000000;
+  }  else  {
+    data = 0;
+  }
+   
+  data |=  locoSpeed;
+  return data;
+}
+byte Train::getID() {
+  return this->id;
+}
+
+bool Train::isConfigured() {
+  return this->configured;
 }
 
