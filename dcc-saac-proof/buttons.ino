@@ -1,6 +1,5 @@
-// define some values used by the panel and buttons
-int lcd_key     = 0;
-int adc_key_in  = 0;
+#define BUTTON_PIN A0
+
 #define btnNONE   0
 #define btnRIGHT  1
 #define btnUP     2
@@ -8,10 +7,24 @@ int adc_key_in  = 0;
 #define btnLEFT   4
 #define btnSELECT 5
 
-// read the buttons
+#define LONG_PRESS 2
+#define SHORT_PRESS 1
+
+#define MIN_BUTTON_TRIGGER 50 // The button must be press this many ms for a trigger to hapen
+
+
+bool newButton = false;
+int btnPressed = 0;
+int btnHold = 0;
+int lastKey = btnNONE;
+unsigned long longPressTime = 0;
+unsigned long startPressTime = 0;
+unsigned long btnLoopTime = 0;
+
 int read_LCD_buttons() {
- adc_key_in = analogRead(0);      // read the value from the sensor 
- Serial.println(adc_key_in);
+ int adc_key_in  = 0;
+ adc_key_in = analogRead(BUTTON_PIN);      // read the value from the sensor 
+ //Serial.println(adc_key_in);
  // my buttons when read are centered at these valies: 0, 144, 329, 504, 741
  // we add approx 50 to those values and check to see if we are close
  if (adc_key_in > 1000) return btnNONE; // We make this the 1st option for speed reasons since it will be the most likely result
@@ -33,34 +46,45 @@ int read_LCD_buttons() {
  return btnNONE;  // when all others fail, return this...
 }
 
-void get_buttons() {
-  lcd_key = read_LCD_buttons();  // read the buttons
-  switch (lcd_key)    {          // depending on which button was pushed, we perform an action
- 
-    case btnRIGHT: {
-      lcd.print("RIGHT ");
-      break;
-    }
-    case btnLEFT:  {
-      lcd.print("LEFT   ");
-      break;
-    }
-    case btnUP:   {
-      lcd.print("UP    ");
-       break;
-    }
-    case btnDOWN:  {
-      lcd.print("DOWN  ");
-      break;
-    }
-    case btnSELECT: {
-       lcd.print("SELECT");
-      break;
-    }
-    case btnNONE:  {
-      lcd.print("NONE  ");
-      break;
+
+
+void btn_loop() {
+  // this loops at unknown speeds depending on program states. 
+  // We need to keep track of what buttons are pressed,
+  // and for how long to create short or long press events
+  
+  unsigned long timeToAdd = millis() - btnLoopTime;
+  btnLoopTime = millis();
+  unsigned long compareTime = btnLoopTime - startPressTime;
+  
+  int thisKey = read_LCD_buttons();
+  
+  if ( thisKey != lastKey ) {
+    startPressTime = btnLoopTime;
+    
+    if ( compareTime > MIN_BUTTON_TRIGGER ) {
+      Serial.println("Button trigger");
+      btnPressed = lastKey;
+      newButton = true;
     }
   }
+  
+  if ( (thisKey == lastKey) && (thisKey != btnNONE) ) {
+    
+    if (compareTime > MIN_BUTTON_TRIGGER && newButton) {
+      Serial.println("Button reset timer");
+      longPressTime = 0;
+      newButton = false;
+    }
+    if ( compareTime > MIN_BUTTON_TRIGGER ) {
+      btnHold = lastKey;
+    }
+    longPressTime += timeToAdd;
+  } 
+  
+  
+
+  lastKey = thisKey;
 }
+
 
