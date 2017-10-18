@@ -21,14 +21,16 @@ struct Message {
    unsigned char len;
 } ;
 
-#define MAXMSG  3
+#define MAXMSG  5
 // for the time being, use only two messages - the idle msg and the loco Speed msg
 
 struct Message msg[MAXMSG] = { 
     { { 0xFF,     0, 0xFF, 0, 0, 0, 0}, 3},   // idle msg
-    { { 0, 0x3F,  0, 0, 0, 0, 0}, 4},   // locoMsg with 128 speed steps
-    { { 0, 0x90,  0, 0, 0, 0, 0}, 4} // 0x90 means funktion packet and light on
-  };               // loco msg must be filled later with speed and XOR data byte
+    { { 0xFF, 0x3F,  0, 0, 0, 0, 0}, 4},   // locoMsg with 128 speed steps
+    { { 0xFF, 0x80,  0, 0, 0, 0, 0}, 3}, // Function group 1
+    { { 0xFF, 0xA0,  0, 0, 0, 0, 0}, 3}, // Function group 2
+    { { 0xFF, 0xB0,  0, 0, 0, 0, 0}, 3} // Function group 3
+  };               
                                 
 int msgIndex=0;  
 int byteIndex=0;
@@ -63,12 +65,24 @@ void dcc_packMsg() {
     xdata = (msg[1].data[0] ^ msg[1].data[1]) ^ msg[1].data[2];
     msg[1].data[3] = xdata;
     
-    // Functions
+    // Function group 1
     msg[2].data[0] = trains[trainCounter].getID();
-    msg[2].data[1] = 0x90;
+    msg[2].data[1] = trains[trainCounter].getFunctionGroup1();
+    xdata = (msg[2].data[0] ^ msg[2].data[1]);
+    msg[2].data[2] = xdata;
+
+    // Function group 2
+    msg[3].data[0] = trains[trainCounter].getID();
+    msg[3].data[1] = trains[trainCounter].getFunctionGroup2();
+    xdata = (msg[3].data[0] ^ msg[3].data[1]);
+    msg[3].data[2] = xdata;
+
+    // Function group 3
+    msg[4].data[0] = trains[trainCounter].getID();
+    msg[4].data[1] = trains[trainCounter].getFunctionGroup3();
+    xdata = (msg[4].data[0] ^ msg[4].data[1]);
+    msg[4].data[2] = xdata;
     
-    xdata = (msg[1].data[0] ^ msg[1].data[1]) ^ msg[1].data[2];
-    msg[1].data[3] = xdata;
   } else {
     
   }

@@ -2,12 +2,13 @@
 
 #define MENU_MAIN 1
 #define MENU_SPEED 10
+#define MENU_FUNCTION 11
 
 int currentMenu = 1;
 int prevMenu = 1;
 
 int selectedTrain = 0;
-
+int selectedFunction = 0;
 
 
 void initLCD() {
@@ -39,6 +40,10 @@ void drawMenu() {
         menuMain();
         break;
     }
+    case MENU_FUNCTION: {
+        subMenuFunction();
+        break;
+    }
   }
 
 }
@@ -53,10 +58,12 @@ void menuMain() {
   } else {
     lcd.print("P:Off");
   }
+  lcd.setCursor(11,1);
+  lcd.print(currentDraw);
   
   lcd.setCursor(0,1);
-  lcd.print("SelTrain");
-  lcd.setCursor(8,1);
+  lcd.print("Train");
+  lcd.setCursor(5,1);
   lcd.print(">");
   lcd.print(trains[selectedTrain].getName()); // print a simple message
   if ( btnPressed == btnSELECT) {
@@ -182,6 +189,12 @@ void subMenuSpeed() {
     lcd.clear();
     return;
   }
+  if ( btnPressed == btnUP) {
+    btnPressed = 0;
+    currentMenu = MENU_FUNCTION;
+    lcd.clear();
+    return;
+  }
   
   lcd.setCursor(0,0);
   lcd.print(trains[selectedTrain].getName()); // print a simple message
@@ -189,5 +202,56 @@ void subMenuSpeed() {
   lcd.print("S:");
   lcd.print(trains[selectedTrain].getSpeed());
   lcd.print("    ");
+}
+void subMenuFunction() {
+
+  if ( btnPressed == btnRIGHT) {
+    selectedFunction++;
+    if (selectedFunction>12) {
+      selectedFunction=12;
+    }
+
+    btnPressed = 0;
+
+  }
+  if ( btnPressed == btnLEFT) {
+    selectedFunction--;
+    if (selectedFunction<0) {
+      selectedFunction=0;
+    }
+    btnPressed = 0;
+
+  }
+  if ( btnPressed == btnDOWN) {
+
+    trains[selectedTrain].toggleFunction(selectedFunction);
+    btnPressed = 0;
+
+  }
+  if ( btnPressed == btnSELECT) {
+    btnPressed = 0;
+    currentMenu = MENU_MAIN;
+    lcd.clear();
+    return;
+  }
+  if ( btnPressed == btnUP) {
+    btnPressed = 0;
+    currentMenu = MENU_SPEED;
+    lcd.clear();
+    return;
+  }
+  
+  lcd.setCursor(0,0);
+  lcd.print(trains[selectedTrain].getName()); // print a simple message
+  lcd.setCursor(0,1);
+  lcd.print("F:");
+  lcd.print(selectedFunction);
+  lcd.print("  ");
+  lcd.setCursor(5,1);
+  if ( trains[selectedTrain].getFunction(selectedFunction) ) {
+    lcd.print("On ");
+  } else {
+    lcd.print("Off");
+  }
 }
 
