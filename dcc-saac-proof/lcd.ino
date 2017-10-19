@@ -58,12 +58,12 @@ void menuMain() {
   } else {
     lcd.print("P:Off");
   }
-  lcd.setCursor(11,1);
+  lcd.setCursor(12,1);
   lcd.print(currentDraw);
-  
+  lcd.print("    ");
   lcd.setCursor(0,1);
-  lcd.print("Train");
-  lcd.setCursor(5,1);
+  lcd.print("T:");
+  lcd.setCursor(2,1);
   lcd.print(">");
   lcd.print(trains[selectedTrain].getName()); // print a simple message
   if ( btnPressed == btnSELECT) {
@@ -160,6 +160,7 @@ void testMenu() {
 }
 void subMenuSpeed() {
   if ( btnHold == btnRIGHT) {
+    btnPressed = 0;
     unsigned long change = longPressTime/SPEED_CHANGE_FACTOR;
     if (change>=1) {
       longPressTime = 0;
@@ -169,6 +170,7 @@ void subMenuSpeed() {
     }
   }
   if ( btnHold == btnLEFT) {
+    btnPressed = 0;
     unsigned long change = longPressTime/SPEED_CHANGE_FACTOR;
     if (change>=1) {
       longPressTime = 0;

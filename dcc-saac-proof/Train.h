@@ -6,9 +6,11 @@ class Train {
     bool func[20];
     char name[9];
     bool configured; // true if the train is configured and usable
- 
+    byte moto[26]; // unused maybe
+    byte format;
+    
   public:
-    Train(int idIn, String nameIn);
+    Train(int idIn, String nameIn, byte formatIn);
     void setSpeed(int inSpeed);
     int getSpeed();
     void toggleFunction(int funcNr);
@@ -20,18 +22,26 @@ class Train {
     byte getFunctionGroup2();
     byte getFunctionGroup3();
     bool getFunction(int funcNr);
+    byte* getMotorola();
+    byte getFormat();
+    byte direction;
 };
 
-Train::Train(int idIn, String nameIn) {
+Train::Train(int idIn, String nameIn, byte formatIn) {
   // Constructor for a train
-  if (idIn != 0) {
+  if (formatIn != UNCONF) {
     this->configured = true;
     this->id = idIn;
+    this->format = formatIn;
     //this->name = nameIn;
     nameIn.toCharArray(this->name, 9);
 
     this->name[sizeof(this->name)-1] = 0;
     
+  } else {
+    this->configured = false;
+    String banan = "... ";
+    banan.toCharArray(this->name, 9);
   }
   
   this->speed = 0;
@@ -50,7 +60,14 @@ void Train::setSpeed(int inSpeed) {
   if(inSpeed < -126) {
     inSpeed=-126;
   }
-  speed = inSpeed;
+  if (this->format == MOTOROLA) {
+    if (inSpeed < -10) {
+      this->direction = 10; // tell the system to send x nr of direction change messages
+      this->speed = 0;
+      return;
+    }
+  }
+  this->speed = inSpeed;
 }
 
 void Train::toggleFunction(int funcNr) {
@@ -65,7 +82,7 @@ byte Train::getSpeedMsg() {
   byte  data;
   byte locoSpeed;
   bool dir;
-  if (this->speed >0) {
+  if (this->speed >=0) {
     dir = true;
   } else {
     dir = false;
@@ -187,4 +204,79 @@ bool Train::getFunction(int funcNr) {
   }
   return false;
 }
+byte* Train::getMotorola() {
+  Serial.print("building Motorola");
+  for (int i;i<26;i++) {
+    this->moto[i] = 0;
+  }
+  byte mspeed = abs(this->speed/9);
+  if (mspeed == 1) {
+    mspeed = 0;
+  }
+  if (this->direction>0) {
+    this->direction--;
+    mspeed = 1;
+  }
 
+  // address
+  if (this->id == 78) {
+    this->moto[0] = 0;
+    this->moto[1] = 0;
+
+    this->moto[2] = 1;
+    this->moto[3] = 0;
+
+    this->moto[4] = 1;
+    this->moto[5] = 0;
+
+    this->moto[6] = 1;
+    this->moto[7] = 0;
+  }
+  if (this->id == 72) {
+    this->moto[0] = 0;
+    this->moto[1] = 0;
+
+    this->moto[2] = 0;
+    this->moto[3] = 0;
+
+    this->moto[4] = 1;
+    this->moto[5] = 0;
+
+    this->moto[6] = 1;
+    this->moto[7] = 0;
+  }
+  if (this->func[0]) {
+    this->moto[8] = 1;
+    this->moto[9] = 1;
+  }
+  // speed
+  if (mspeed & 0b00000001) {
+    this->moto[10] = 1;
+    this->moto[11] = 1;
+  }
+  if (mspeed & 0b00000010) {
+    this->moto[12] = 1;
+    this->moto[13] = 1;
+  }
+  if (mspeed & 0b00000100) {
+    this->moto[14] = 1;
+    this->moto[15] = 1;
+  }
+  if (mspeed & 0b00001000) {
+    this->moto[16] = 1;
+    this->moto[17] = 1;
+  }
+  this->moto[18] = 2;
+  this->moto[19] = 2;
+  this->moto[20] = 2;
+  this->moto[21] = 2;
+  this->moto[22] = 2;
+  this->moto[23] = 2;
+  this->moto[24] = 2;
+  this->moto[25] = 2;
+  Serial.println(".");
+  return this->moto;
+}
+byte Train::getFormat() {
+  return this->format;
+}

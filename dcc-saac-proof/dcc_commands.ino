@@ -1,7 +1,9 @@
-#define PULSE_TRUE 143
-#define PULSE_FALSE 33
+#define PULSE_DCC_TRUE 142
+#define PULSE_DCC_FALSE 28
+#define PULSE_DCC_NEW_TRUE 227
+#define PULSE_DCC_NEW_FALSE 198
 
-unsigned char last_timer=PULSE_TRUE;  // store last timer value
+unsigned char last_timer=PULSE_DCC_NEW_TRUE;  // store last timer value
    
 unsigned char flag=0;  // used for short or long pulse
 unsigned char every_second_isr = 0;  // pulse up or down
@@ -35,14 +37,14 @@ struct Message msg[MAXMSG] = {
 int msgIndex=0;  
 int byteIndex=0;
 
-int trainCounter = 0;
+
 
 bool dcc_flippflopp;
 
 void dcc_init() {
   pinMode(DCC_DIR, OUTPUT);
   pinMode(DCC_POWER, OUTPUT);
-
+/*
   // set up timer2 for 2mhz mode
   TCCR2A = 0;
   TCCR2B = 0<<CS22 | 1<<CS21 | 0<<CS20; 
@@ -51,10 +53,12 @@ void dcc_init() {
   TIMSK2 = 1<<TOIE2;
 
   // Start timer
-  TCNT2=PULSE_FALSE; 
-  
+  TCNT2=PULSE_DCC_NEW_TRUE; 
+  */
 }
 void dcc_packMsg() {
+  // debug performance
+
   byte xdata;
   if ( trains[trainCounter].isConfigured() ) {
     // Speed
@@ -87,15 +91,10 @@ void dcc_packMsg() {
     
   }
 
-  trainCounter++;
-  if (trainCounter>=MAX_TRAINS) {
-    trainCounter = 0;
-  }
-  
 }
 
-ISR(TIMER2_OVF_vect) {
-  unsigned char latency;
+void dcc_old_timer() {
+   unsigned char latency;
   
   // for every second interupt just toggle signal
   if (every_second_isr)  {
@@ -157,12 +156,85 @@ ISR(TIMER2_OVF_vect) {
  
      if (flag)  {  // if data==1 then short pulse
         latency=TCNT2;
-        TCNT2=latency+PULSE_TRUE;
-        last_timer=PULSE_TRUE;
+        TCNT2=latency+PULSE_DCC_TRUE;
+        last_timer=PULSE_DCC_TRUE;
      }  else  {   // long pulse
         latency=TCNT2;
-        TCNT2=latency+PULSE_FALSE; 
-        last_timer=PULSE_FALSE;
+        TCNT2=latency+PULSE_DCC_FALSE; 
+        last_timer=PULSE_DCC_FALSE;
+     }  
+  }
+}
+
+void dcc_new_timer() {
+  unsigned char latency;
+  
+  // for every second interupt just toggle signal
+  if (every_second_isr)  {
+     digitalWrite(DCC_DIR,1);
+     every_second_isr = 0;    
+     
+     // set timer to last value
+     latency=TCNT2;
+     TCNT2=latency+last_timer; 
+     
+  }  else  {  // != every second interrupt, advance bit or state
+     digitalWrite(DCC_DIR,0);
+     every_second_isr = 1; 
+     
+     switch(state)  {
+       case PREAMBLE:
+           flag=1; // short pulse
+           preamble_count--;
+           if (preamble_count == 0)  {  // advance to next state
+              state = SEPERATOR;
+              // get next message
+              msgIndex++;
+              if (msgIndex >= MAXMSG)  {  
+                msgIndex = 0; 
+                packageReady = false; //dcc_packMsg(); // prepare next train
+              }  
+              byteIndex = 0; //start msg with byte 0
+           }
+           break;
+        case SEPERATOR:
+           flag=0; // long pulse
+           // then advance to next state
+           state = SENDBYTE;
+           // goto next byte ...
+           bitmask = 0b10000000;  // send this bit next time first         
+           outbyte = msg[msgIndex].data[byteIndex];
+           break;
+        case SENDBYTE:
+           if (outbyte & bitmask)  { 
+              flag = 1;  // send short pulse
+           }  else  {
+              flag = 0;  // send long pulse
+           }
+           bitmask = bitmask >> 1;
+           if (bitmask == 0)  {  // last bit sent, is there a next byte?
+              byteIndex++;
+              if (byteIndex >= msg[msgIndex].len)  {
+                 // this was already the XOR byte then advance to preamble
+                 state = PREAMBLE;
+                 preamble_count = 16;
+                 
+              }  else  {
+                 // send separtor and advance to next byte
+                 state = SEPERATOR ;
+              }
+           }
+           break;
+     }   
+ 
+     if (flag)  {  // if data==1 then short pulse
+        latency=TCNT2;
+        TCNT2=latency+PULSE_DCC_NEW_TRUE;
+        last_timer=PULSE_DCC_NEW_TRUE;
+     }  else  {   // long pulse
+        latency=TCNT2;
+        TCNT2=latency+PULSE_DCC_NEW_FALSE; 
+        last_timer=PULSE_DCC_NEW_FALSE;
      }  
   }
 }
