@@ -26,6 +26,7 @@ ISR(TIMER2_OVF_vect) {
   }else {
     noInterrupts();
     //Serial.println("pack");
+    TCNT2=0;
     packNextMessage();
     //Serial.println("klar pack");
     interrupts();

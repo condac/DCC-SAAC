@@ -21,13 +21,13 @@ bool packageReady = false;
 #define MAX_TRAINS 10 // with 10 trains the performance is about 2-3 updates/s
 
 Train trains[MAX_TRAINS] {Train( 1, "RC1    ", UNCONF), 
-                  Train( 3, "RC2    ", DCC), 
-                  Train( 72, "ST    ", UNCONF), 
-                  Train( 24, "Electric", MOTOROLA), 
-                  Train( 60, "Railcar", MOTOROLA), 
-                  Train( 72, "Diesel", MOTOROLA), 
-                  Train( 78, "Steam", MOTOROLA), 
-                  Train( 80, "Delta Pilot", MOTOROLA), 
+                  Train( 3, "RC2    ", UNCONF), 
+                  Train( 72, "ST    ", DCC), 
+                  Train( 24, "Electric", MOTOROLA), //0220
+                  Train( 60, "Railcar", MOTOROLA),  //0202
+                  Train( 72, "Diesel", MOTOROLA),   //0022
+                  Train( 78, "Steam", UNCONF),    //0222
+                  Train( 80, "Delta Pilot", UNCONF), 
                   Train( 0, "noname9", UNCONF), 
                   Train( 0, "noname10", UNCONF), 
 
@@ -48,14 +48,19 @@ void setup() {
  
 void loop() {
   //lcdLoop();
-  Serial.println("Buttons");
+  //unsigned long hej = millis();
+
+  //Serial.println(arbitraryBaseRight( 21, 3, 3));
+  
   btn_loop();
-  Serial.println("Menu");
+  
   drawMenu();
-  Serial.println("current");
+  
   currentWatch();
-  Serial.println("trackpower");
+  
   checkTrackPower();
+  //unsigned long hejend =  millis();
+  //Serial.println(hejend-hej);
   //packNextMessage();
   
 }
@@ -80,13 +85,13 @@ void currentWatch() {
 }
 
 void packNextMessage() {
-  if (!packageReady) { // package send is completed
-    //while (!trains[trainCounter].isConfigured()) {
-    //  trainCounter++;
-    //  if (trainCounter>=MAX_TRAINS) {
-    //    trainCounter = 0;
-    //  }
-    //}
+
+    while (!trains[trainCounter].isConfigured()) {
+      trainCounter++;
+      if (trainCounter>=MAX_TRAINS) {
+        trainCounter = 0;
+      }
+    }
     if (trains[trainCounter].isConfigured()) {
       if ( trains[trainCounter].getFormat() == DCC ) {
         //Serial.println("making new pakage DCC");
@@ -98,13 +103,15 @@ void packNextMessage() {
       } else if ( trains[trainCounter].getFormat() == MOTOROLA ) {
         //Serial.println("making new pakage Motorola");
         current_packet = MOTOROLA;
+        //digitalWrite(DCC_DIR,HIGH);
         motorolaPackMsg();
         digitalWrite(DCC_DIR,LOW);
-        delayMicroseconds(2100);
+        delayMicroseconds(4000);
         //Serial.println("making new pakage Motorola");
+        
         packageReady = true;
         digitalWrite(DCC_DIR,LOW);
-        TCNT2=250;
+        TCNT2=0;
       }
     }
   
@@ -113,7 +120,7 @@ void packNextMessage() {
     if (trainCounter>=MAX_TRAINS) {
       trainCounter = 0;
     }
-  }
+  
   
 }
 

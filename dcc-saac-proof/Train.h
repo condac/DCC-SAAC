@@ -280,3 +280,27 @@ byte* Train::getMotorola() {
 byte Train::getFormat() {
   return this->format;
 }
+
+String arbitraryBase( int value, int base) {
+   static char baseChars[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+   String result = "";
+   do {
+        result = String(baseChars[value % base]) + result;  // Add on the left
+        value /= base;
+       } while (value != 0);
+   return result;
+}
+
+byte arbitraryBaseRight( int value, int base, int index) {
+   static char baseChars[] = "0123456789AB";
+   char result[] = "0000000";
+   int counterRes = 0;
+   do {
+        result[counterRes] = baseChars[value % base] ;  // Add on the right
+        value /= base;
+        counterRes++;
+       } while (value != 0);
+   //result = result + "000";
+   
+   return result[index]-48;
+}
