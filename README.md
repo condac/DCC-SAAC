@@ -38,4 +38,5 @@ If you have 12V power supply you can connect it directly to the arduino power pl
 
 If you have more than 12V you must cut the power line on the motor shield the (same way you cut the brake pins) and supply the motor sheild with the power. And then use a seperate power supply for the arduino. The easiest way is to use a cellphone charger with removable USB cable and connect the one you have for the arduino and power it through USB
 
+# Other
 reference for dcc protocol https://www.nmra.org/sites/default/files/s-92-2004-07.pdf https://www.nmra.org/sites/default/files/s-9.2.1_2012_07.pdf
