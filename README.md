@@ -20,6 +20,7 @@ The addresses used in DELTA is as following:
 * 78, "Steam"
 
 # Hardware
+* Arduino Uno or Mega
 * Arduino Motor Shield R3
 * LCD Keypad shield 16x2
 * 12-18v Power supply for rail track
