@@ -74,11 +74,11 @@ void menuMain() {
   }
   if ( btnPressed == btnRIGHT) {
     btnPressed = 0;
-    selectedTrain++;
+    selectNextTrain();
   }
   if ( btnPressed == btnLEFT) {
     btnPressed = 0;
-    selectedTrain--;
+    selectPrevTrain();
   }
   if ( btnPressed == btnUP) {
     trackPower = !trackPower;
@@ -91,6 +91,29 @@ void menuMain() {
   if (selectedTrain < 0) {
     selectedTrain = MAX_TRAINS-1;
   }
+}
+
+void selectNextTrain() {
+  selectedTrain++;
+  bool maxHit = false;
+  while (!trains[selectedTrain].isConfigured() && !maxHit) {
+    selectedTrain++;
+    if (selectedTrain >= MAX_TRAINS) {
+      selectedTrain = 0;
+    }
+  }
+}
+void selectPrevTrain() {
+  selectedTrain--;
+  bool maxHit = false;
+  while (!trains[selectedTrain].isConfigured() && !maxHit) {
+    selectedTrain--;
+    if (selectedTrain < 0) {
+      selectedTrain = MAX_TRAINS-1;
+    }
+  
+  }
+  
 }
 
 void testMenu() {
