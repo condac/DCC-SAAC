@@ -6,14 +6,17 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 #define DCC 4
 
 // Internal include
+#include "common.h"
 #include "Train.h"
+#include "buttons.h"
+#include "ir.h"
 
 #define DCC_POWER   11
 #define DCC_DIR     13
 
 
 
-bool trackPower = false;
+
 int trainCounter = 0;
 int current_packet = DCC;
 bool packageReady = false;
@@ -44,6 +47,7 @@ void setup() {
   initLCD();
   Serial.begin(115200);
 //  trains[0].setSpeed(1);
+  initIR();
 }
  
 void loop() {
@@ -51,8 +55,15 @@ void loop() {
   //unsigned long hej = millis();
 
   //Serial.println(arbitraryBaseRight( 21, 3, 3));
-  
+  /*Serial.print(" btnPressed: ");
+  Serial.print(btnPressed);
+  Serial.print(" btnHold: ");
+  Serial.print(btnHold);
+  Serial.print(" longPressTime: ");
+  Serial.println(longPressTime);
+  */
   btn_loop();
+  irLoop();
   
   drawMenu();
   
@@ -106,7 +117,8 @@ void packNextMessage() {
         //digitalWrite(DCC_DIR,HIGH);
         motorolaPackMsg();
         digitalWrite(DCC_DIR,LOW);
-        delayMicroseconds(4000);
+        //delayMicroseconds(4000);
+        //bitStage = BIT_STAGE_LONG_SLEEP;
         //Serial.println("making new pakage Motorola");
         
         packageReady = true;

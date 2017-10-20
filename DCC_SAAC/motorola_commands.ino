@@ -54,7 +54,8 @@ byte messagetest[messageLength] ;
 #define BIT_STAGE_BEGIN 1
 #define BIT_STAGE_END 2
 #define BIT_STAGE_DONE 3
-
+#define BIT_STAGE_SLEEP BIT_STAGE_DONE+6
+#define BIT_STAGE_LONG_SLEEP BIT_STAGE_DONE+20
 
 void delta_init() {
   pinMode(DCC_DIR, OUTPUT);
@@ -215,125 +216,31 @@ void motorola_timer() {
           msgI = 0;
           currentBit = messagetest[msgI];
           //digitalWrite(DCC_DIR,HIGH);
-          delayMicroseconds(416*3);
-          TCNT2=0;
+          //delayMicroseconds(416*3);
+          bitStage = BIT_STAGE_SLEEP;
+          TCNT2=PULSE_MOTOROLA_SLEEP;
           
         }else {
           packageReady = false; // prepare next message
           sendTwo = true;
           msgI = 0;
           currentBit = messagetest[msgI];
+          bitStage = BIT_STAGE_LONG_SLEEP;
           digitalWrite(DCC_DIR,LOW);
           TCNT2=0; 
           return;
         }
     }
+    
     currentBit = messagetest[msgI];
     
   }
+  if (bitStage > BIT_STAGE_DONE) {  // BIT_STAGE_SLEEP
+      bitStage--;
+      TCNT2=PULSE_MOTOROLA_SLEEP;
+    }
   //Serial.println("END");
 }
   
-void motorola_timerold() {
-  unsigned char latency;
 
-  if (packageReady) {
-    bitStage++;
-    digitalWrite(DCC_DIR,flip);
-  
-
-    if (bitStage >=BIT_STAGE_DONE) {
-      // move to next bit
-      bitStage = BIT_STAGE_BEGIN;
-      
-      currentBit = messagetest[msgI];
-      msgI++;
-      if (msgI >messageLength) {
-        if (sendTwo) {
-          sendTwo = false;
-          msgI = 1;
-          currentBit = messagetest[msgI];
-          //digitalWrite(DCC_DIR,HIGH);
-          
-        }else {
-          packageReady = false; // prepare next message
-          sendTwo = true;
-          msgI = 0;
-          currentBit = messagetest[msgI];
-          digitalWrite(DCC_DIR,LOW);
-          TCNT2=PULSE_MOTOROLA_LONG; 
-          return;
-        }
-          
-        
-      }
-      
-    }
-    
-    if (currentBit == 1) {
-      // send a true command
-      if (bitStage == BIT_STAGE_BEGIN) {
-        flip = false;
-        latency= TCNT2;
-        TCNT2=latency+PULSE_MOTOROLA_LONG; 
-      } else {
-        if (messagetest[msgI] == 2) {
-          flip = false;
-        }else {
-          flip = true;
-        }
-        latency= TCNT2;
-        TCNT2=latency+PULSE_MOTOROLA_SHORT; 
-      }
-    } else if (currentBit == 2) {
-      if ( !sendTwo) {
-        // abort early
-        packageReady = false; // prepare next message
-        sendTwo = true;
-        msgI = 0;
-        bitStage = BIT_STAGE_BEGIN;
-        currentBit = messagetest[msgI];
-        digitalWrite(DCC_DIR,LOW);
-        flip = false;
-        latency= TCNT2;
-        TCNT2=latency+PULSE_MOTOROLA_SHORT;
-      } else {
-        if (bitStage == BIT_STAGE_BEGIN) {
-          digitalWrite(DCC_DIR,LOW);
-          flip = false;
-          latency= TCNT2;
-          TCNT2=latency+PULSE_MOTOROLA_LONG; 
-        } else {
-          digitalWrite(DCC_DIR,LOW);
-          flip = false;
-          latency= TCNT2;
-          TCNT2=latency+PULSE_MOTOROLA_SHORT; 
-        }
-      }
-    }
-    else {
-      // send a false command
-      if (bitStage == BIT_STAGE_BEGIN) {
-        
-        flip = false;
-        latency= TCNT2;
-        TCNT2=latency+PULSE_MOTOROLA_SHORT; 
-      } else {
-        if (messagetest[msgI] == 2) {
-          flip = false;
-        }else {
-          flip = true;
-        }
-        
-        latency= TCNT2;
-        TCNT2=latency+PULSE_MOTOROLA_LONG; 
-      }
-    }
-  }else {
-    digitalWrite(DCC_DIR,LOW);
-    TCNT2=PULSE_MOTOROLA_LONG;
-  }
-  
-  
-}
 

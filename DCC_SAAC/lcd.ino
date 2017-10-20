@@ -183,24 +183,34 @@ void testMenu() {
 }
 void subMenuSpeed() {
   if ( btnHold == btnRIGHT) {
-    btnPressed = 0;
-    unsigned long change = longPressTime/SPEED_CHANGE_FACTOR;
+    btnHold = 0;
+    
+    unsigned long change = (longPressTime-MIN_BUTTON_TRIGGER)/SPEED_CHANGE_FACTOR;
     if (change>=1) {
-      longPressTime = 0;
+      longPressTime = MIN_BUTTON_TRIGGER;
       int currentSpeed = trains[selectedTrain].getSpeed();
       currentSpeed += (int)change;
       trains[selectedTrain].setSpeed(currentSpeed);
     }
   }
   if ( btnHold == btnLEFT) {
-    btnPressed = 0;
-    unsigned long change = longPressTime/SPEED_CHANGE_FACTOR;
+    btnHold = 0;
+    unsigned long change = (longPressTime-MIN_BUTTON_TRIGGER)/SPEED_CHANGE_FACTOR;
     if (change>=1) {
-      longPressTime = 0;
+      longPressTime = MIN_BUTTON_TRIGGER;
       int currentSpeed = trains[selectedTrain].getSpeed();
       currentSpeed -= (int)change;
       trains[selectedTrain].setSpeed(currentSpeed);
     }
+  }
+  if ( btnPressed == btnRIGHT) {
+    btnPressed = 0;
+    
+    
+      int currentSpeed = trains[selectedTrain].getSpeed();
+      currentSpeed++;
+      trains[selectedTrain].setSpeed(currentSpeed);
+    
   }
   if ( btnPressed == btnDOWN) {
 
@@ -215,6 +225,7 @@ void subMenuSpeed() {
     return;
   }
   if ( btnPressed == btnUP) {
+    Serial.println("Change menu func");
     btnPressed = 0;
     currentMenu = MENU_FUNCTION;
     lcd.clear();
@@ -225,7 +236,19 @@ void subMenuSpeed() {
   lcd.print(trains[selectedTrain].getName()); // print a simple message
   lcd.setCursor(9,0);
   lcd.print("S:");
-  lcd.print(trains[selectedTrain].getSpeed());
+  if (trains[selectedTrain].getFormat() == MOTOROLA) {
+    lcd.print(trains[selectedTrain].getSpeed()/9);
+    lcd.print("    ");
+    lcd.setCursor(9,1);
+    if (trains[selectedTrain].currentDirection) {
+      lcd.print("Forward");
+    } else {
+      lcd.print("Reverse");
+    }
+  } else {
+    lcd.print(trains[selectedTrain].getSpeed());
+  }
+  
   lcd.print("    ");
 }
 void subMenuFunction() {

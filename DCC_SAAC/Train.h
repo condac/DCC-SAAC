@@ -9,6 +9,7 @@ class Train {
     byte moto[26]; // unused maybe
     byte format;
     
+    
   public:
     Train(int idIn, String nameIn, byte formatIn);
     void setSpeed(int inSpeed);
@@ -25,6 +26,7 @@ class Train {
     byte* getMotorola();
     byte getFormat();
     byte direction;
+    bool currentDirection = true;
 };
 
 Train::Train(int idIn, String nameIn, byte formatIn) {
@@ -62,6 +64,7 @@ void Train::setSpeed(int inSpeed) {
   }
   if (this->format == MOTOROLA) {
     if (inSpeed < -10) {
+      this->currentDirection = !this->currentDirection;
       this->direction = 10; // tell the system to send x nr of direction change messages
       this->speed = 0;
       return;
