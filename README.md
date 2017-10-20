@@ -56,5 +56,12 @@ Train trains[MAX_TRAINS] {Train( 1, "RC1    ", UNCONF),
 ~~~~
 The last parameter is set to DCC or MOTOROLA depending on the decoder format, set it to UNCONF for the trains you do not use. 
 
+# CV Programming
+A simple interface for CV programming exists. 
+
+CAUTION!!! CV is sent to broadcast address so all train on track will get programmed!
+
+Make sure you understand the risks with CV programming before use, more details on the dangers of programming on non protected mains http://www.dccwiki.com/Programming_Track
+
 # Other
 reference for dcc protocol https://www.nmra.org/sites/default/files/s-92-2004-07.pdf https://www.nmra.org/sites/default/files/s-9.2.1_2012_07.pdf
