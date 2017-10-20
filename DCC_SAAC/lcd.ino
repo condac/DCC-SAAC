@@ -1,13 +1,17 @@
 #define SPEED_CHANGE_FACTOR 50 // how fast speed should change when holding the button. Lower value is faster
 
-#define MENU_MAIN 1
-#define MENU_SPEED 10
+#define MENU_MAIN     1
+#define MENU_SPEED    10
 #define MENU_FUNCTION 11
+#define MENU_ENTERCV1 21
+#define MENU_ENTERCV2 22
+#define MENU_CV       23
+#define MENU_CV_WRITE 24
 
 int currentMenu = 1;
 int prevMenu = 1;
 
-int selectedTrain = 0;
+
 int selectedFunction = 0;
 
 
@@ -42,6 +46,22 @@ void drawMenu() {
     }
     case MENU_FUNCTION: {
         subMenuFunction();
+        break;
+    }
+    case MENU_ENTERCV1: {
+        menuEnterCV1();
+        break;
+    }
+    case MENU_ENTERCV2: {
+        menuEnterCV2();
+        break;
+    }
+    case MENU_CV: {
+        menuCV();
+        break;
+    }
+    case MENU_CV_WRITE: {
+        menuCVWrite();
         break;
     }
   }
@@ -83,6 +103,12 @@ void menuMain() {
   if ( btnPressed == btnUP) {
     trackPower = !trackPower;
     btnPressed = 0;
+  }
+  if ( btnPressed == btnDOWN) {
+    btnPressed = 0;
+    currentMenu = MENU_ENTERCV1;
+    lcd.clear();
+    return;
   }
   
   if (selectedTrain >= MAX_TRAINS) {
@@ -185,9 +211,9 @@ void subMenuSpeed() {
   if ( btnHold == btnRIGHT) {
     btnHold = 0;
     
-    unsigned long change = (longPressTime-MIN_BUTTON_TRIGGER)/SPEED_CHANGE_FACTOR;
+    unsigned long change = (longPressTime)/SPEED_CHANGE_FACTOR;
     if (change>=1) {
-      longPressTime = MIN_BUTTON_TRIGGER;
+      longPressTime = 0;
       int currentSpeed = trains[selectedTrain].getSpeed();
       currentSpeed += (int)change;
       trains[selectedTrain].setSpeed(currentSpeed);
@@ -195,11 +221,16 @@ void subMenuSpeed() {
   }
   if ( btnHold == btnLEFT) {
     btnHold = 0;
-    unsigned long change = (longPressTime-MIN_BUTTON_TRIGGER)/SPEED_CHANGE_FACTOR;
+    //Serial.println(longPressTime);
+    int change = (longPressTime)/SPEED_CHANGE_FACTOR;
+    //Serial.println(change);
+    change = abs(change);
     if (change>=1) {
-      longPressTime = MIN_BUTTON_TRIGGER;
+      longPressTime = 0;
       int currentSpeed = trains[selectedTrain].getSpeed();
+      //Serial.println(currentSpeed);
       currentSpeed -= (int)change;
+      //Serial.println(currentSpeed);
       trains[selectedTrain].setSpeed(currentSpeed);
     }
   }
@@ -209,6 +240,15 @@ void subMenuSpeed() {
     
       int currentSpeed = trains[selectedTrain].getSpeed();
       currentSpeed++;
+      trains[selectedTrain].setSpeed(currentSpeed);
+    
+  }
+  if ( btnPressed == btnLEFT) {
+    btnPressed = 0;
+    
+    
+      int currentSpeed = trains[selectedTrain].getSpeed();
+      currentSpeed--;
       trains[selectedTrain].setSpeed(currentSpeed);
     
   }
@@ -246,7 +286,7 @@ void subMenuSpeed() {
       lcd.print("Reverse");
     }
   } else {
-    lcd.print(trains[selectedTrain].getSpeed());
+    lcd.print(trains[selectedTrain].getSpeed(), BIN);
   }
   
   lcd.print("    ");
@@ -301,5 +341,130 @@ void subMenuFunction() {
   } else {
     lcd.print("Off");
   }
+}
+
+void menuEnterCV1() {
+  lcd.setCursor(0,0);
+  lcd.print("CV PROGRAMING");
+  lcd.setCursor(0,1);
+  lcd.print("Press Select to enter");
+  if ( btnPressed == btnSELECT) {
+    btnPressed = 0;
+    currentMenu = MENU_ENTERCV2;
+    lcd.clear();
+    return;
+  } else if( btnPressed != 0) {
+    btnPressed = 0;
+    currentMenu = MENU_MAIN;
+    lcd.clear();
+    return;
+  }
+}
+void menuEnterCV2() {
+  lcd.setCursor(0,0);
+  lcd.print("CV PROGRAMING");
+  lcd.setCursor(0,1);
+  lcd.print("Press Right to enter");
+  if ( btnPressed == btnRIGHT) {
+    btnPressed = 0;
+    currentMenu = MENU_CV;
+    programingMode = true;
+    selectedFunction = 9;
+    lcd.clear();
+    return;
+  } else if( btnPressed != 0) {
+    btnPressed = 0;
+    currentMenu = MENU_MAIN;
+    lcd.clear();
+    return;
+  }
+}
+
+void menuCV() {
+  
+  lcd.setCursor(8,0);
+  lcd.print("76543210");
+  int change = 0;
+  if ( btnPressed == btnUP) {
+    change++;
+    btnPressed = 0;
+  }
+  if ( btnPressed == btnDOWN) {
+    change--;
+    btnPressed = 0;
+  }
+  if ( btnPressed == btnLEFT) {
+    selectedFunction++;
+    btnPressed = 0;
+  }
+  if ( btnPressed == btnRIGHT) {
+    selectedFunction--;
+    btnPressed = 0;
+  }
+  if ( btnPressed == btnSELECT) {
+    btnPressed = 0;
+    currentMenu = MENU_CV_WRITE;
+    lcd.clear();
+    return;
+  }
+  if (selectedFunction == 9) {
+    lcd.setCursor(0,0);
+    lcd.print("*");
+    cvAddress += change;
+  } else {
+    lcd.setCursor(0,0);
+    lcd.print(" ");
+  }
+  if (selectedFunction == 8) {
+    lcd.setCursor(3,1);
+    lcd.print("*");
+    cvData += change;
+  } else {
+    lcd.setCursor(3,1);
+    lcd.print(" ");
+  }
+  if (selectedFunction >= 0 && selectedFunction < 8) {
+    lcd.setCursor(15-selectedFunction,0);
+    lcd.print("*");
+    
+    if (change == 1) {
+      bitSet(cvData, selectedFunction);
+    }
+    if (change == -1) {
+      bitClear(cvData, selectedFunction);
+    }
+  }
+  
+  lcd.setCursor(1,0);
+  lcd.print("CV");
+  lcd.print(cvAddress);
+  lcd.print("  ");
+  lcd.setCursor(4,1);
+  lcd.print(cvData);
+  lcd.print("=   ");
+  lcd.setCursor(8,1);
+  for (int b = 7; b >= 0; b--)  {
+    lcd.print(bitRead(cvData, b));
+  }
+}
+void menuCVWrite() {
+  if ( btnPressed == btnSELECT) {
+    btnPressed = 0;
+    currentMenu = MENU_CV;
+    lcd.clear();
+    return;
+  }
+  if ( btnPressed == btnRIGHT) {
+    btnPressed = 0;
+    currentMenu = MENU_CV;
+    programingModeSendData = true;
+    lcd.clear();
+    return;
+  }
+  lcd.setCursor(0,0);
+  lcd.print("Sel>Back Rgt>Send ");
+  lcd.setCursor(0,1);
+  lcd.print("Reset to Quit");
+  
 }
 

@@ -16,6 +16,8 @@
 bool newButton = false;
 int btnPressed = 0;
 int btnHold = 0;
+int btnFunc = 0;
+
 int lastKey = btnNONE;
 unsigned long longPressTime = 0;
 unsigned long startPressTime = 0;

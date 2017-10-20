@@ -6,7 +6,6 @@ class Train {
     bool func[20];
     char name[9];
     bool configured; // true if the train is configured and usable
-    byte moto[26]; // unused maybe
     byte format;
     
     
@@ -207,92 +206,11 @@ bool Train::getFunction(int funcNr) {
   }
   return false;
 }
-byte* Train::getMotorola() {
-  Serial.print("building Motorola");
-  for (int i;i<26;i++) {
-    this->moto[i] = 0;
-  }
-  byte mspeed = abs(this->speed/9);
-  if (mspeed == 1) {
-    mspeed = 0;
-  }
-  if (this->direction>0) {
-    this->direction--;
-    mspeed = 1;
-  }
 
-  // address
-  if (this->id == 78) {
-    this->moto[0] = 0;
-    this->moto[1] = 0;
-
-    this->moto[2] = 1;
-    this->moto[3] = 0;
-
-    this->moto[4] = 1;
-    this->moto[5] = 0;
-
-    this->moto[6] = 1;
-    this->moto[7] = 0;
-  }
-  if (this->id == 72) {
-    this->moto[0] = 0;
-    this->moto[1] = 0;
-
-    this->moto[2] = 0;
-    this->moto[3] = 0;
-
-    this->moto[4] = 1;
-    this->moto[5] = 0;
-
-    this->moto[6] = 1;
-    this->moto[7] = 0;
-  }
-  if (this->func[0]) {
-    this->moto[8] = 1;
-    this->moto[9] = 1;
-  }
-  // speed
-  if (mspeed & 0b00000001) {
-    this->moto[10] = 1;
-    this->moto[11] = 1;
-  }
-  if (mspeed & 0b00000010) {
-    this->moto[12] = 1;
-    this->moto[13] = 1;
-  }
-  if (mspeed & 0b00000100) {
-    this->moto[14] = 1;
-    this->moto[15] = 1;
-  }
-  if (mspeed & 0b00001000) {
-    this->moto[16] = 1;
-    this->moto[17] = 1;
-  }
-  this->moto[18] = 2;
-  this->moto[19] = 2;
-  this->moto[20] = 2;
-  this->moto[21] = 2;
-  this->moto[22] = 2;
-  this->moto[23] = 2;
-  this->moto[24] = 2;
-  this->moto[25] = 2;
-  Serial.println(".");
-  return this->moto;
-}
 byte Train::getFormat() {
   return this->format;
 }
 
-String arbitraryBase( int value, int base) {
-   static char baseChars[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-   String result = "";
-   do {
-        result = String(baseChars[value % base]) + result;  // Add on the left
-        value /= base;
-       } while (value != 0);
-   return result;
-}
 
 byte arbitraryBaseRight( int value, int base, int index) {
    static char baseChars[] = "0123456789AB";

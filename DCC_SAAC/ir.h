@@ -25,12 +25,23 @@
 */
 
 // include PinChangeInterrupt library* BEFORE IRLremote to acces more pins if needed
-#include "PinChangeInterrupt.h"
 
+#include "PinChangeInterrupt.h"
 #include "IRLremote.h"
 
 // Choose a valid PinInterrupt or PinChangeInterrupt* pin of your Arduino board
-#define pinIR A3
+#define IR_PIN A3
+
+
+#define WHAT_REMOTE(remote) (IR_REMOTE==REMOTE_##remote)
+
+#if WHAT_REMOTE(BASIC1)
+  #include "remote_basic1.h"
+#elif WHAT_REMOTE(REMOTE_BASIC2)
+  #include "remote_basic2.h"
+#endif
+
+
 
 // Choose the IR protocol of your remote. See the other example for this.
 CNec IRLremote;
@@ -41,7 +52,7 @@ CNec IRLremote;
 int lastButton = 0;
 
 void initIR() {
-  if (!IRLremote.begin(pinIR))
+  if (!IRLremote.begin(IR_PIN))
     Serial.println(F("You did not choose a valid pin for IR remote."));
 
   
@@ -82,6 +93,29 @@ void irLoop() {
     }
     if (data.command == 64) {
       btnPressed =  btnSELECT;
+    }
+
+    if (data.command == REMOTE_1) {
+      trains[selectedTrain].toggleFunction(1);
+    }
+    if (data.command == REMOTE_2) {
+      trains[selectedTrain].toggleFunction(2);
+    }if (data.command == REMOTE_3) {
+      trains[selectedTrain].toggleFunction(3);
+    }if (data.command == REMOTE_4) {
+      trains[selectedTrain].toggleFunction(4);
+    }if (data.command == REMOTE_5) {
+      trains[selectedTrain].toggleFunction(5);
+    }if (data.command == REMOTE_6) {
+      trains[selectedTrain].toggleFunction(6);
+    }if (data.command == REMOTE_7) {
+      trains[selectedTrain].toggleFunction(7);
+    }if (data.command == REMOTE_8) {
+      trains[selectedTrain].toggleFunction(8);
+    }if (data.command == REMOTE_9) {
+      trains[selectedTrain].toggleFunction(9);
+    }if (data.command == REMOTE_0) {
+      trains[selectedTrain].toggleFunction(0);
     }
 
     if (data.command == 77) { // POWER OFF BUTTON

@@ -93,6 +93,54 @@ void dcc_packMsg() {
 
 }
 
+void buildIdlePacket() {
+
+  msg[0].data[0] = msg[1].data[0] = msg[2].data[0] = msg[3].data[0] = msg[4].data[0] = 0xFF;
+  msg[0].data[1] = msg[1].data[1] = msg[2].data[1] = msg[3].data[1] = msg[4].data[1] = 0;
+  msg[0].data[2] = msg[1].data[2] = msg[2].data[2] = msg[3].data[2] = msg[4].data[2] = 0xFF;
+  msg[0].len = 3;
+  msg[1].len = 3;
+  msg[2].len = 3;
+  msg[3].len = 3;
+  msg[4].len = 3;
+}
+void buildCVPacket() {
+  // CV messeges must be sent twice so we set 2 packets at the same time
+    byte byte1 = 0b11101100;
+    byte byte2 = 0;
+
+    bitWrite(byte1, 1, bitRead(cvAddress, 9));
+    bitWrite(byte1, 0, bitRead(cvAddress, 8));
+    bitWrite(byte2, 7, bitRead(cvAddress, 7));
+    bitWrite(byte2, 6, bitRead(cvAddress, 6));
+    bitWrite(byte2, 5, bitRead(cvAddress, 5));
+    bitWrite(byte2, 4, bitRead(cvAddress, 4));
+    bitWrite(byte2, 3, bitRead(cvAddress, 3));
+    bitWrite(byte2, 2, bitRead(cvAddress, 2));
+    bitWrite(byte2, 1, bitRead(cvAddress, 1));
+    bitWrite(byte2, 0, bitRead(cvAddress, 0));
+    
+
+    // send on broadcast address 0
+    msg[1].data[0] = msg[2].data[0] = 0;
+    
+    // 1110CCVV
+    
+    msg[1].data[1] = msg[2].data[1] = byte1;
+    
+
+    // VVVVVVVV
+    msg[1].data[2] = msg[2].data[2] = byte2;
+
+    // DDDDDDDD
+    msg[1].data[3] = msg[2].data[3] = cvData;
+
+    byte xdata = ((msg[1].data[0] ^ msg[1].data[1]) ^ msg[1].data[2]) ^ msg[1].data[3] ;
+    msg[1].data[4] = msg[2].data[4] = xdata;
+    msg[1].len = 5;
+    msg[2].len = 5;
+}
+
 void dcc_old_timer() {
    unsigned char latency;
   
