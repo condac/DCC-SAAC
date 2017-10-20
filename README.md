@@ -4,6 +4,21 @@ DCC Stand Alone Arduino Controller
 This project is focused on simple and easy to get up and running. And hopefully provide the basics needed to control the small scale trainlayouts. The Arduino is working by it self and do not need a computer to tell it what to do. 
 The project use the same hardware as the DCC++ project making it a easy upgrade when you want to take the step to more advanced layouts and control with a computer attached. ( Or if you want to downgrade and not have the computer )
 
+# DCC Support
+For the moment only 128 speed step decoders and 12 Functions
+
+# Märklin Motorola protocol 
+Basic support for Märklins early protocol used in the DELTA series and early locomotives.
+* 80 Id numbers
+* Light function
+* Simultaneous running with DCC on same track !!!
+
+The addresses used in DELTA is as following:
+* 24, "Electric"
+* 60, "Railcar"
+* 72, "Diesel"
+* 78, "Steam"
+
 # Hardware
 * Arduino Motor Shield R3
 * LCD Keypad shield 16x2
