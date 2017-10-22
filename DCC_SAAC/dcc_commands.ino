@@ -122,23 +122,33 @@ void buildCVPacket() {
     
 
     // send on broadcast address 0
-    msg[1].data[0] = msg[2].data[0] = 0;
+    msg[1].data[0] = msg[2].data[0] = msg[3].data[0] = msg[4].data[0] = 0;
     
     // 1110CCVV
     
-    msg[1].data[1] = msg[2].data[1] = byte1;
+    msg[1].data[1] = msg[2].data[1] = msg[3].data[1] = msg[4].data[1] = byte1;
     
 
     // VVVVVVVV
-    msg[1].data[2] = msg[2].data[2] = byte2;
+    msg[1].data[2] = msg[2].data[2] = msg[3].data[2] = msg[4].data[2] = byte2;
 
     // DDDDDDDD
-    msg[1].data[3] = msg[2].data[3] = cvData;
+    msg[1].data[3] = msg[2].data[3] = msg[3].data[3] = msg[4].data[3] = cvData;
 
-    byte xdata = ((msg[1].data[0] ^ msg[1].data[1]) ^ msg[1].data[2]) ^ msg[1].data[3] ;
-    msg[1].data[4] = msg[2].data[4] = xdata;
+    byte xdata = ((msg[2].data[0] ^ msg[2].data[1]) ^ msg[2].data[2]) ^ msg[2].data[3] ;
+    msg[1].data[4] = msg[2].data[4] = msg[3].data[4] = msg[4].data[4] = xdata;
+
+    // msg 0 is reset packet
+    msg[0].data[0] = 0;
+    msg[0].data[1] = 0;
+    msg[0].data[2] = 0;
+    msg[0].data[3] = 0;
+    
+    msg[0].len = 3;
     msg[1].len = 5;
     msg[2].len = 5;
+    msg[3].len = 5;
+    msg[4].len = 5;
 }
 
 void dcc_old_timer() {

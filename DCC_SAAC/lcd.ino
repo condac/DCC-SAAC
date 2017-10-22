@@ -437,7 +437,7 @@ void menuCV() {
   
   lcd.setCursor(1,0);
   lcd.print("CV");
-  lcd.print(cvAddress);
+  lcd.print(cvAddress+1); // CV1 has binary zero 0x000000000
   lcd.print("  ");
   lcd.setCursor(4,1);
   lcd.print(cvData);
@@ -462,7 +462,7 @@ void menuCVWrite() {
     return;
   }
   lcd.setCursor(0,0);
-  lcd.print("Sel>Back Rgt>Send ");
+  lcd.print("S>Back R>Send ");
   lcd.setCursor(0,1);
   lcd.print("Reset to Quit");
   
