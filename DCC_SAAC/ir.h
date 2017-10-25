@@ -30,15 +30,15 @@
 #include "IRLremote.h"
 
 // Choose a valid PinInterrupt or PinChangeInterrupt* pin of your Arduino board
-#define IR_PIN A3
+
 
 
 #define WHAT_REMOTE(remote) (IR_REMOTE==REMOTE_##remote)
 
 #if WHAT_REMOTE(BASIC1)
   #include "remote_basic1.h"
-#elif WHAT_REMOTE(REMOTE_BASIC2)
-  #include "remote_basic2.h"
+#elif WHAT_REMOTE(KJELL)
+  #include "remote_kjell.h"
 #endif
 
 
@@ -78,20 +78,20 @@ void irLoop() {
  *  if address FFFF repeat last command
  */
     
-    if (data.command == 30) {
+    if (data.command == REMOTE_RIGHT) {
       btnPressed = btnRIGHT;
       
     }
-    if (data.command == 10) {
+    if (data.command == REMOTE_LEFT) {
       btnPressed = btnLEFT;
     }
-    if (data.command == 5) {
+    if (data.command == REMOTE_UP) {
       btnPressed = btnUP;
     }
-    if (data.command == 2) {
+    if (data.command == REMOTE_DOWN) {
       btnPressed = btnDOWN;
     }
-    if (data.command == 64) {
+    if (data.command == REMOTE_SELECT) {
       btnPressed =  btnSELECT;
     }
 
@@ -118,10 +118,10 @@ void irLoop() {
       trains[selectedTrain].toggleFunction(0);
     }
 
-    if (data.command == 77) { // POWER OFF BUTTON
+    if (data.command == REMOTE_EMERGENCY) { // POWER OFF BUTTON
       trackPower = false;
     }
-    if (data.command == 22) { // POWER ON BUTTON
+    if (data.command == REMOTE_POWER_ON) { // POWER ON BUTTON
       trackPower = true;
     }
     
@@ -129,7 +129,7 @@ void irLoop() {
       lastButton = btnPressed;
       longPressTime = MIN_BUTTON_TRIGGER*2;
     }
-    if (data.address == 65535) {
+    if (data.address == REMOTE_HOLD_ADDRESS) {
       btnHold = lastButton;
       longPressTime += MIN_BUTTON_TRIGGER*2;
     }

@@ -15,8 +15,8 @@ Train trains[MAX_TRAINS] {Train( 1, "RC1    ", DCC),
                   Train( 4, "nr4", DCC), 
                   Train( 24, "Electric", UNCONF), //0220
                   Train( 60, "Railcar", UNCONF),  //0202
-                  Train( 72, "Diesel", UNCONF),   //0022
-                  Train( 78, "Steam", UNCONF),    //0222
+                  Train( 72, "Diesel", MOTOROLA),   //0022
+                  Train( 78, "Steam", MOTOROLA),    //0222
                   Train( 80, "Delta Pilot", UNCONF), 
                   
                   };
@@ -29,9 +29,11 @@ Train trains[MAX_TRAINS] {Train( 1, "RC1    ", DCC),
 // Comment / Uncomment #define IRSUPPORT to enable or disable support for IR remote
 #define IRSUPPORT
 
+#define IR_PIN A3
+
 // Look in remotes.h for remote options, or create and map your own remote like in remote_basic1.h
 #define IR_REMOTE BASIC1
-
+//#define IR_REMOTE KJELL
 
 
 

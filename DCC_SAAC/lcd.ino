@@ -78,9 +78,9 @@ void menuMain() {
   } else {
     lcd.print("P:Off");
   }
-  lcd.setCursor(12,1);
-  lcd.print(currentDraw);
-  lcd.print("    ");
+  lcd.setCursor(10,1);
+  lcd.print(macurrent);
+  lcd.print("mA    ");
   lcd.setCursor(0,1);
   lcd.print("T:");
   lcd.setCursor(2,1);
@@ -286,7 +286,7 @@ void subMenuSpeed() {
       lcd.print("Reverse");
     }
   } else {
-    lcd.print(trains[selectedTrain].getSpeed(), BIN);
+    lcd.print(trains[selectedTrain].getSpeed());
   }
   
   lcd.print("    ");

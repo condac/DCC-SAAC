@@ -110,6 +110,7 @@ void currentWatch() {
     digitalWrite(DCC_POWER, LOW);
     trackPower = false;
   }
+  macurrent = (macurrent*100 + (currentDraw*3) )/101;
 }
 
 void packNextMessage() {
