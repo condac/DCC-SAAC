@@ -1,3 +1,6 @@
+//Luxorparts IR-mottagare och fjärrkontroll för Arduino
+// https://www.kjell.com/se/sortiment/el-verktyg/arduino/moduler/luxorparts-ir-mottagare-och-fjarrkontroll-for-arduino-p87895
+
 #define REMOTE_LEFT   10
 #define REMOTE_RIGHT  30
 #define REMOTE_UP     5
