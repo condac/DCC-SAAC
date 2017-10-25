@@ -81,9 +81,9 @@ void menuMain() {
   lcd.setCursor(10,1);
   lcd.print(macurrent);
   lcd.print("mA    ");
+  //lcd.setCursor(0,1);
+  //lcd.print("");
   lcd.setCursor(0,1);
-  lcd.print("T:");
-  lcd.setCursor(2,1);
   lcd.print(">");
   lcd.print(trains[selectedTrain].getName()); // print a simple message
   if ( btnPressed == btnSELECT) {

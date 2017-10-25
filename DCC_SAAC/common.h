@@ -1,6 +1,6 @@
 bool trackPower = false;
 int selectedTrain = 0;
-int macurrent = 0;
+unsigned long macurrent = 0;
 
 // CV programming
 unsigned int cvAddress = 0;

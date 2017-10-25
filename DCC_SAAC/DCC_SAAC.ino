@@ -33,19 +33,10 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 #endif
 
 
-#define DCC_POWER   11
-#define DCC_DIR     13
-
-
-
 
 int trainCounter = 0;
 int current_packet = DCC;
 bool packageReady = false;
-
-
-
-
 int currentDraw;
 
 
@@ -102,15 +93,18 @@ void checkTrackPower() {
 }
 
 void currentWatch() {
-
-  currentDraw = analogRead(A1);
+  long tempcurrent = analogRead(A1);
+  currentDraw = (currentDraw*SHORT_SMOOTHING + tempcurrent )/(SHORT_SMOOTHING+1);
+  
   //Serial.println(currentDraw);
-  if (currentDraw > 660) {
+  
+  
+  if (currentDraw > CURRENT_LIMIT) {
     Serial.println("Over current protection triggered!");
     digitalWrite(DCC_POWER, LOW);
     trackPower = false;
   }
-  macurrent = (macurrent*100 + (currentDraw*3) )/101;
+  macurrent = (macurrent*DISPLAY_CURRENT_SMOOTHING + (currentDraw*3) )/(DISPLAY_CURRENT_SMOOTHING+1);
 }
 
 void packNextMessage() {
