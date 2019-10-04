@@ -65,3 +65,6 @@ Make sure you understand the risks with CV programming before use, more details 
 
 # Other
 reference for dcc protocol https://www.nmra.org/sites/default/files/s-92-2004-07.pdf https://www.nmra.org/sites/default/files/s-9.2.1_2012_07.pdf
+
+## Donations
+Feel free to make any donations on my patreon page https://www.patreon.com/condac or with paypal https://www.paypal.me/condac
