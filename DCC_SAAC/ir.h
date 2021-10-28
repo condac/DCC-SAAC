@@ -26,8 +26,8 @@
 
 // include PinChangeInterrupt library* BEFORE IRLremote to acces more pins if needed
 
-#include "PinChangeInterrupt.h"
-#include "IRLremote.h"
+#include "PinChangeInterrupt.h" // Download PinChangeInterrupts by NicoHood from built in library manager
+#include "IRLremote.h" // Download IRLremote by NicoHood from built in library manager
 
 // Choose a valid PinInterrupt or PinChangeInterrupt* pin of your Arduino board
 
@@ -135,4 +135,3 @@ void irLoop() {
     }
   }
 }
-

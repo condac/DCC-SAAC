@@ -5,7 +5,6 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 #define MOTOROLA 3
 #define DCC 4
 
-
 // Macros to support option testing
 #define _CAT(a, ...) a ## __VA_ARGS__
 #define SWITCH_ENABLED_false 0
@@ -22,17 +21,15 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 #include "Configuration.h"
 #include "common.h"
 
-
-
-
-
 #include "buttons.h"
+
 #if ENABLED(IRSUPPORT)
   #include "ir.h"
-  
 #endif
 
-
+#if ENABLED(USE_TM1638_KEYPAD)
+  #include "keypad.h"
+#endif
 
 int trainCounter = 0;
 int current_packet = DCC;
@@ -51,7 +48,9 @@ void setup() {
 #if ENABLED(IRSUPPORT)
   initIR();
 #endif
-  
+#if ENABLED(USE_TM1638_KEYPAD)
+  setupKeypad();
+#endif
 }
  
 void loop() {
@@ -72,7 +71,11 @@ void loop() {
   #if ENABLED(IRSUPPORT)
   irLoop();
   #endif
-  
+
+  #if ENABLED(USE_TM1638_KEYPAD)
+  keypadLoop();
+  #endif
+
   drawMenu();
   
   currentWatch();
@@ -124,8 +127,9 @@ void packNextMessage() {
         TCNT2=227; // from PULSE_DCC_NEW_TRUE
       }
       
-    } else {
-        while (!trains[trainCounter].isConfigured()) {
+    } 
+    else {
+      while (!trains[trainCounter].isConfigured()) {
         trainCounter++;
         if (trainCounter>=MAX_TRAINS) {
           trainCounter = 0;
@@ -155,15 +159,10 @@ void packNextMessage() {
         }
       }
     
-    
       trainCounter++;
       if (trainCounter>=MAX_TRAINS) {
         trainCounter = 0;
       }
     }
 
-    
-  
-  
 }
-

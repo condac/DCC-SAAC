@@ -296,5 +296,3 @@ void dcc_new_timer() {
      }  
   }
 }
-
-
